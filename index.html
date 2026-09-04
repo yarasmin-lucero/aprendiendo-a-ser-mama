@@ -72,11 +72,30 @@
 
 <script>
 const counterNamespace="yarasmin-lucero.github.io";
-document.querySelectorAll("[data-counter]").forEach(enlace=>{
- const key="aprendiendo-a-ser-mama-"+enlace.dataset.counter,numero=enlace.querySelector(".numero");
- const api="https://counterapi.com/api/"+encodeURIComponent(counterNamespace)+"/vote/"+encodeURIComponent(key);
- fetch(api+"?readOnly=true").then(r=>r.json()).then(d=>{if(d&&typeof d.value==="number")numero.textContent=d.value}).catch(()=>{});
- enlace.addEventListener("click",()=>{fetch(api,{method:"GET",keepalive:true}).catch(()=>{});});
+
+document.querySelectorAll("[data-counter]").forEach(enlace => {
+  const key = "aprendiendo-a-ser-mama-" + enlace.dataset.counter;
+  const numero = enlace.querySelector(".numero");
+  const api = "https://counterapi.com/api/" +
+    encodeURIComponent(counterNamespace) + "/vote/" + encodeURIComponent(key);
+
+  // Carga el total actual sin incrementarlo.
+  fetch(api + "?readOnly=true")
+    .then(r => r.json())
+    .then(d => {
+      if (d && typeof d.value === "number") numero.textContent = d.value;
+    })
+    .catch(() => {});
+
+  // Registra el clic y actualiza inmediatamente el número mostrado.
+  enlace.addEventListener("click", () => {
+    fetch(api)
+      .then(r => r.json())
+      .then(d => {
+        if (d && typeof d.value === "number") numero.textContent = d.value;
+      })
+      .catch(() => {});
+  });
 });
 </script></body>
 </html>
