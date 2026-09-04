@@ -72,29 +72,41 @@
 
 <script>
 const counterNamespace="yarasmin-lucero.github.io";
+const contadorVisitadoKey="aprendiendo-a-ser-mama-contadores-v1";
 
-document.querySelectorAll("[data-counter]").forEach(enlace => {
-  const key = "aprendiendo-a-ser-mama-" + enlace.dataset.counter;
-  const numero = enlace.querySelector(".numero");
-  const api = "https://counterapi.com/api/" +
-    encodeURIComponent(counterNamespace) + "/vote/" + encodeURIComponent(key);
+document.querySelectorAll("[data-counter]").forEach(enlace=>{
+  const key="aprendiendo-a-ser-mama-"+enlace.dataset.counter;
+  const numero=enlace.querySelector(".numero");
+  const api="https://counterapi.com/api/"+encodeURIComponent(counterNamespace)+"/vote/"+encodeURIComponent(key);
 
-  // Carga el total actual sin incrementarlo.
-  fetch(api + "?readOnly=true")
-    .then(r => r.json())
-    .then(d => {
-      if (d && typeof d.value === "number") numero.textContent = d.value;
+  // Mostrar el total actual sin incrementarlo.
+  fetch(api+"?readOnly=true")
+    .then(r=>r.json())
+    .then(d=>{
+      if(d&&typeof d.value==="number") numero.textContent=d.value;
     })
-    .catch(() => {});
+    .catch(()=>{});
 
-  // Registra el clic y actualiza inmediatamente el número mostrado.
-  enlace.addEventListener("click", () => {
+  enlace.addEventListener("click",()=>{
+    let visitados={};
+    try {
+      visitados=JSON.parse(localStorage.getItem(contadorVisitadoKey)||"{}");
+    } catch(e) {}
+
+    // El mismo navegador/dispositivo solo suma una vez por fuente.
+    if(visitados[key]) return;
+
+    visitados[key]=true;
+    try {
+      localStorage.setItem(contadorVisitadoKey,JSON.stringify(visitados));
+    } catch(e) {}
+
     fetch(api)
-      .then(r => r.json())
-      .then(d => {
-        if (d && typeof d.value === "number") numero.textContent = d.value;
+      .then(r=>r.json())
+      .then(d=>{
+        if(d&&typeof d.value==="number") numero.textContent=d.value;
       })
-      .catch(() => {});
+      .catch(()=>{});
   });
 });
 </script></body>
